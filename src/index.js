@@ -1,21 +1,67 @@
-module.exports = function solveSudoku(matrix) {
-  const res = [[], [], [], [], [], [], [], [], []];
-  const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-  for(let i=0; i<9; i++){
-    if(matrix[i].every((i) => {return i !== 0})) {
-      res[i] = matrix[i]
-    } else {
-      for(let j=0; j<9; j++){
-        if(matrix[i][j] !== 0) {
-          res[i][j] = matrix[i][j]
-        } else {
-          const emptyNums = nums.slice().filter((item) => {return !matrix[i].includes(item)})
-          const vertical = [matrix[0][j], matrix[1][j], matrix[2][j], matrix[3][j], matrix[4][j], matrix[5][j], matrix[6][j], matrix[7][j], matrix[8][j]]
-          const origin = emptyNums.filter((item) => {return !vertical.includes(item)})
-          res[i][j] = origin[0]
+function searchZero(array) {
+    for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < array.length; j++) {
+            const value = array[i][j];
+            if (value === 0) {
+                const pos = {
+                    row: i,
+                    col: j,
+                };
+                return pos;
+            }
         }
-      }
     }
-  }
-  return res
+    return null;
 }
+function checkNum(num, position, array) {
+    const { row, col } = position;
+    for (let i = 0; i < array.length; i++) {
+        const value = array[row][i];
+        if (value === num && i !== col) {
+            return false;
+        }
+    }
+    for (let j = 0; j < array.length; j++) {
+        const value = array[j][col];
+        if (value === num && j !== row) {
+            return false;
+        }
+    }
+    const len = array.length;
+    const rowStart = 3 * Math.floor(row / 3);
+    const colStart = 3 * Math.floor(col / 3);
+    for (let k = rowStart; k < rowStart + 3; k++) {
+        for (let l = colStart; l < colStart + 3; l++) {
+            const value = array[k][l];
+            if (value === num && k !== row && l !== col) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+function recursion(array) {
+    const len = array.length;
+    const position = searchZero(array);
+    if (position === null) {
+        return true;
+    }
+    for (let i = 1; i <= len; i++) {
+        const isValid = checkNum(i, position, array);
+        if (isValid) {
+            const { row, col } = position;
+            array[row][col] = i;
+            if (recursiveSolve(array)) {
+                return true;
+            }
+            array[row][col] = 0;
+        }
+    }
+    return false;
+}
+
+module.exports = function solveSudoku(matrix) {
+    const copyMatrix = matrix.map(arr => [...arr]);
+    recursion(copyMatrix);
+    return copyMatrix;
+};
