@@ -51,7 +51,7 @@ function recursion(array) {
         if (isValid) {
             const { row, col } = position;
             array[row][col] = i;
-            if (recursiveSolve(array)) {
+            if (recursion(array)) {
                 return true;
             }
             array[row][col] = 0;
